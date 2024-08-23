@@ -80,24 +80,92 @@ class RoarCompetitionSolution:
             self.current_waypoint_idx,
             self.maneuverable_waypoints
         )
+               
+
+        if  (self.current_waypoint_idx < 430 or self.current_waypoint_idx > 2750):
+            throttle_control = 10 * (90 - vehicle_velocity_norm)
+            ah = int(0.48*vehicle_velocity_norm)
+            ki = -12
+        elif (self.current_waypoint_idx >= 430 and self.current_waypoint_idx < 500):
+            throttle_control = 0.18 * (40 - vehicle_velocity_norm)
+            ah = 16
+            ki = -12
+        elif (self.current_waypoint_idx >= 500 and self.current_waypoint_idx < 668):
+            throttle_control = 10 * (70 - vehicle_velocity_norm)
+            ah = 15
+            ki = -12
+        elif (self.current_waypoint_idx >= 668 and self.current_waypoint_idx < 740):
+            throttle_control = 0.18 * (50 - vehicle_velocity_norm)
+            ah = int(0.48*vehicle_velocity_norm)
+            ki = -18
+        elif (self.current_waypoint_idx >= 740 and self.current_waypoint_idx < 850):
+            throttle_control = 0.18 * (52 - vehicle_velocity_norm)
+            ah = int(0.48*vehicle_velocity_norm)
+            ki = -18
+        elif (self.current_waypoint_idx >= 850 and self.current_waypoint_idx < 890):
+            throttle_control = 0.18 * (46 - vehicle_velocity_norm)
+            ah = int(0.48*vehicle_velocity_norm)
+            ki = -16
+        elif (self.current_waypoint_idx >= 890 and self.current_waypoint_idx < 1310):
+            throttle_control = 0.18 * (72 - vehicle_velocity_norm)
+            ah = int(0.58*vehicle_velocity_norm)
+            ki = -18
+        elif (self.current_waypoint_idx >= 1310 and self.current_waypoint_idx < 1370):
+            throttle_control = 0.18 * (36 - vehicle_velocity_norm)  
+            ah = int(0.44*vehicle_velocity_norm)
+            ki = -12
+        elif (self.current_waypoint_idx >= 1370 and self.current_waypoint_idx < 1470):
+            throttle_control = 0.18 * (48 - vehicle_velocity_norm)
+            ah = int(0.48*vehicle_velocity_norm)
+            ki = -16
+        elif (self.current_waypoint_idx >= 1470 and self.current_waypoint_idx < 1870):
+            throttle_control = 10 * (90 - vehicle_velocity_norm)
+            ah = int(0.68*vehicle_velocity_norm)
+            ki = -18
+        elif (self.current_waypoint_idx >= 1870 and self.current_waypoint_idx < 1980):
+            throttle_control = 0.18 * (48 - vehicle_velocity_norm)
+            ah = int(0.44*vehicle_velocity_norm)
+            ki = -18
+        elif (self.current_waypoint_idx >= 1980 and self.current_waypoint_idx < 2600):
+            throttle_control = 10 * (90 - vehicle_velocity_norm)
+            ah = int(0.58*vehicle_velocity_norm)
+            ki = -18
+        else:
+            throttle_control = 0.18 * (36 - vehicle_velocity_norm)
+            ah = 16
+            ki = -12
+
+
+
          # We use the 3rd waypoint ahead of the current waypoint as the target waypoint
-        waypoint_to_follow = self.maneuverable_waypoints[(self.current_waypoint_idx + 3) % len(self.maneuverable_waypoints)]
+        waypoint_to_follow = self.maneuverable_waypoints[(self.current_waypoint_idx + ah) % len(self.maneuverable_waypoints)]
+
+         # We also use the 5rd waypoint ahead of the current waypoint as the correction waypoint
+        waypoint_to_predict = self.maneuverable_waypoints[(self.current_waypoint_idx + 35) % len(self.maneuverable_waypoints)]
 
         # Calculate delta vector towards the target waypoint
         vector_to_waypoint = (waypoint_to_follow.location - vehicle_location)[:2]
         heading_to_waypoint = np.arctan2(vector_to_waypoint[1],vector_to_waypoint[0])
 
+        vector_to_predict = (waypoint_to_predict.location - vehicle_location)[:2]
+        heading_to_predict = np.arctan2(vector_to_predict[1],vector_to_predict[0])
+
         # Calculate delta angle towards the target waypoint
         delta_heading = normalize_rad(heading_to_waypoint - vehicle_rotation[2])
 
+        delta_heading2 = normalize_rad(heading_to_predict - vehicle_rotation[2])
+        # delta_heading = delta_heading - 0.04 * delta_heading2
+
         # Proportional controller to steer the vehicle towards the target waypoint
         steer_control = (
-            -8.0 / np.sqrt(vehicle_velocity_norm) * delta_heading / np.pi
+            ki/ np.sqrt(vehicle_velocity_norm) * delta_heading / np.pi
         ) if vehicle_velocity_norm > 1e-2 else -np.sign(delta_heading)
         steer_control = np.clip(steer_control, -1.0, 1.0)
 
         # Proportional controller to control the vehicle's speed towards 40 m/s
-        throttle_control = 0.05 * (20 - vehicle_velocity_norm)
+
+        
+
 
         control = {
             "throttle": np.clip(throttle_control, 0.0, 1.0),
