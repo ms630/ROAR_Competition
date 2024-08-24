@@ -104,26 +104,26 @@ class RoarCompetitionSolution:
             ki = -18
         elif (self.current_waypoint_idx >= 850 and self.current_waypoint_idx < 890):
             throttle_control = 0.18 * (46 - vehicle_velocity_norm)
-            ah = int(0.48*vehicle_velocity_norm)
+            ah = int(0.5*vehicle_velocity_norm)
             ki = -16
         elif (self.current_waypoint_idx >= 890 and self.current_waypoint_idx < 1310):
             throttle_control = 0.18 * (72 - vehicle_velocity_norm)
-            ah = int(0.58*vehicle_velocity_norm)
+            ah = int(0.64*vehicle_velocity_norm)
             ki = -18
         elif (self.current_waypoint_idx >= 1310 and self.current_waypoint_idx < 1370):
-            throttle_control = 0.18 * (36 - vehicle_velocity_norm)  
-            ah = int(0.44*vehicle_velocity_norm)
+            throttle_control = 0.18 * (38 - vehicle_velocity_norm)  
+            ah = int(0.48*vehicle_velocity_norm)
             ki = -12
         elif (self.current_waypoint_idx >= 1370 and self.current_waypoint_idx < 1470):
             throttle_control = 0.18 * (48 - vehicle_velocity_norm)
-            ah = int(0.48*vehicle_velocity_norm)
+            ah = int(0.52*vehicle_velocity_norm)
             ki = -16
         elif (self.current_waypoint_idx >= 1470 and self.current_waypoint_idx < 1870):
             throttle_control = 10 * (90 - vehicle_velocity_norm)
             ah = int(0.68*vehicle_velocity_norm)
             ki = -18
         elif (self.current_waypoint_idx >= 1870 and self.current_waypoint_idx < 1980):
-            throttle_control = 0.18 * (48 - vehicle_velocity_norm)
+            throttle_control = 0.18 * (54 - vehicle_velocity_norm)
             ah = int(0.44*vehicle_velocity_norm)
             ki = -18
         elif (self.current_waypoint_idx >= 1980 and self.current_waypoint_idx < 2600):
@@ -164,9 +164,7 @@ class RoarCompetitionSolution:
 
         # Proportional controller to control the vehicle's speed towards 40 m/s
 
-        
-
-
+       
         control = {
             "throttle": np.clip(throttle_control, 0.0, 1.0),
             "steer": steer_control,
